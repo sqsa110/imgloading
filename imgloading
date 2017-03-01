@@ -1,0 +1,103 @@
+ var Util = {};
+ Util.imgloading = function(opts){
+        function ImgLoading(opts){
+            opts = $.extend({
+                box : "body",           //需要进行图片加载的区域
+                el : 'img',             //需要进行图片加载的元素
+                lazyload : false,       //是否需要懒加载    false为不需要
+                adaptiveSizeW : false,  //从标签宽度自适应图片大小
+                adaptiveSizeH : false,  //从标签高度自适应图片大小
+                callback : function(url,w,h){
+
+                }
+            },opts);
+            for (var i in opts) {
+                this[i] = opts[i];
+            }
+            this.init();
+        }
+
+        ImgLoading.prototype.init = function(){
+            var that = this;
+            this.dataInit();
+            if (this.lazyload) {
+                window.onscroll = function(){
+                    that.render();
+                }
+            } else {
+                this.render();
+            }
+            return this;
+        };
+
+        ImgLoading.prototype.dataInit = function(){
+
+            if (this.box instanceof jQuery) {
+                this.el = this.box.find(this.el);
+            } else {
+                this.el = $(this.box + ' ' + this.el);
+                this.box = $(this.box);
+            }
+            this.el = $.makeArray(this.el);
+            return  this;
+        };
+
+        ImgLoading.prototype.render = function(){
+            var that = this,
+                i, maxi, url, obj, winTop;
+            winTop = $(document).scrollTop() + $(window).height();
+            for (i=0,maxi=this.el.length;i<maxi;i++) {
+                $obj = $(this.el[i]);
+                if (this.lazyload && winTop < $obj.offset().top) {
+                    continue;
+                }
+
+                url = $obj.attr('imgsrc');
+                if (url) {
+                    this.loading(url,$obj,function(url,w,h){
+                        that.callback && that.callback(url,w,h);
+                    });
+                }
+
+                this.el.splice(i,1);
+                i--;
+                maxi--;
+
+            }
+
+            return this;
+        };
+
+        ImgLoading.prototype.loading = function(url,obj,fn){
+            var img = new Image(),
+                that = this;
+            img.onload = function(){
+                obj && obj.attr({
+                    'src':url,
+                    'imgsrc' : null
+                });
+                that.adaptiveSize(obj,img.width,img.height);
+                fn && fn(url,img.width,img.height);
+            };
+            img.src = url;
+            return this;
+        };
+
+        ImgLoading.prototype.adaptiveSize = function(obj,w,h){
+            var oW,oH;
+            if (this.adaptiveSizeW) {
+                obj = $(obj);
+                oW = obj.outerWidth();
+                oH = oW * h / w;
+                obj.css('height',oH);
+            } else if (this.adaptiveSizeH) {
+                obj = $(obj);
+                oH = obj.height();
+                oW = w * oH / h;
+                obj.css('width',oW);
+            }
+            return this;
+        };
+
+        return new ImgLoading(opts);
+    };
