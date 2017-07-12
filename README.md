@@ -18,3 +18,12 @@
 
 ## 图片属性
 ** imgsrc **      //需要在img元素上 定义属性imgsrc 图片路径
+
+
+
+## 使用案例
+
+Util.imgloading({
+  box: '.imgbox',
+  el: 'img'
+})
