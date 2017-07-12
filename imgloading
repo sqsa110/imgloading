@@ -44,7 +44,7 @@
 
         ImgLoading.prototype.render = function(){
             var that = this,
-                i, maxi, url, obj, winTop;
+                i, maxi, url, $obj, winTop;
             winTop = $(document).scrollTop() + $(window).height();
             for (i=0,maxi=this.el.length;i<maxi;i++) {
                 $obj = $(this.el[i]);
